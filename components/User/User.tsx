@@ -9,7 +9,7 @@ const Container = styled.div<{ pageY: PositionValue; pageX: PositionValue }>(
 )
 
 const User: FunctionComponent<{ pageX: PositionValue, pageY: PositionValue, email: string | null }> = ({ email, pageX, pageY  }) => {
-  return <Container pageX={pageX && pageX + 10} pageY={pageY && pageY + 10}>email: {email}</Container>
+  return <Container pageX={pageX && pageX + 10} pageY={pageY && pageY + 10}>{email}</Container>
 }
 
 export default User

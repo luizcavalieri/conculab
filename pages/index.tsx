@@ -9,18 +9,28 @@ import User from '../components/User/User'
 
 export type PositionValue = null | number
 
+interface InteractiveComponents {
+  isFocused?: boolean
+}
+
 const COMPONENT_HIGHLIGHT = 'componentHighlight'
 const MOUSE_MOVE = 'mouseMove'
 const INPUT_FIELD_ID = 'inputField'
+const INPUT_FIELD_USER_NAME = 'userName'
 
 const socket = io('ws://localhost:3006', {
   transports: ["websocket"],
 })
 
-
-const FormGroup = styled.div<{ isFocused: boolean }>(
+const FormGroup = styled.div<InteractiveComponents>(
   ({ isFocused }) => css`
     position: relative;
+    display: flex;
+    justify-content: space-around;
+    
+    > * {
+      margin-left: 8px;
+    }
 
   ${isFocused && css`
     &::after {
@@ -37,7 +47,8 @@ const FormGroup = styled.div<{ isFocused: boolean }>(
   `}
   `,
 )
-const HighlightInput = styled.input<{ isFocused: boolean }>(
+
+const HighlightInput = styled.input<InteractiveComponents>(
   ({ isFocused }) => css`
     border: 3px solid ${isFocused ? 'lightgreen' : 'black'};
     
@@ -134,7 +145,6 @@ const Home: NextPage = () => {
               type="text"
             />
           </FormGroup>
-
 
         </main>
 
