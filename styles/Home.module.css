@@ -53,6 +53,16 @@
 .title,
 .description {
   text-align: center;
+  max-width: 600px;
+}
+
+.body {
+  text-align: left;
+}
+
+.body li {
+  margin: 15px;
+  font-size: 20px;
 }
 
 .description {

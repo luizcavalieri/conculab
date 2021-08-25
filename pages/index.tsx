@@ -129,10 +129,35 @@ const Home: NextPage = () => {
             Welcome 🏖
           </h1>
 
-          <p className={styles.description}>
-            Get started by editing{' '}
-            <code className={styles.code}>pages/index.js</code>
-          </p>
+          <div className={styles.description}>
+            You can get started by:
+            <div className={styles.body}>
+              <ol>
+                <li>Adding a new cookie to your browser with the chrome plugin
+                  <code className={styles.code}>
+                    <a href="https://chrome.google.com/webstore/detail/editthiscookie/fngmhnnpilhplaeedifhccceomclgfbg" target="__blank">
+                      EditThisCookie
+                    </a>
+                  </code>.
+                </li>
+                <li>
+                  Using the plugin from the step 1 you can add a new cookie with the following details:
+                  <ul>
+                    <li><strong>name</strong> <code className={styles.code}>user_email</code>.</li>
+                    <li>in <strong>value</strong> you will add your email (or whatever you want to be seem by others).</li>
+                    <li>Change the option <strong>No restriction</strong> to <code className={styles.code}>strict</code>.</li>
+                    <li>And mark ✅ the option bellow <code className={styles.code}>session</code>.</li>
+                  </ul>
+                </li>
+                <li>
+                  Refresh your browser.
+                </li>
+                <li>
+                  Start moving your mouse, or try to edit the <code className={styles.code}>Description</code> field bellow if nobody else got the lock 🔐 😜.
+                </li>
+              </ol>
+            </div>
+          </div>
 
           <FormGroup isFocused={!!components[INPUT_FIELD_ID]}>
             <label htmlFor={INPUT_FIELD_ID}>Description</label>
