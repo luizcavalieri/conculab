@@ -1,17 +1,52 @@
 import type { NextPage } from 'next'
-import { useEffect, useState } from 'react'
+import { FocusEventHandler, useEffect, useState } from 'react'
 import { io } from "socket.io-client"
 import Head from 'next/head'
 import Image from 'next/image'
+import styled, { css } from 'styled-components'
 import styles from '../styles/Home.module.css'
 import User from '../components/User/User'
 
 export type PositionValue = null | number
 
+const COMPONENT_HIGHLIGHT = 'componentHighlight'
+const MOUSE_MOVE = 'mouseMove'
+const INPUT_FIELD_ID = 'inputField'
+
 const socket = io('ws://localhost:3006', {
   transports: ["websocket"],
 })
 
+
+const FormGroup = styled.div<{ isFocused: boolean }>(
+  ({ isFocused }) => css`
+    position: relative;
+
+  ${isFocused && css`
+    &::after {
+      content: '';  
+      width: 8px;
+      height: 8px;
+      border-radius: 4px;
+      display: block;
+      background: green;
+      position: absolute;
+      top: -4px;
+      right: -4px;
+    }
+  `}
+  `,
+)
+const HighlightInput = styled.input<{ isFocused: boolean }>(
+  ({ isFocused }) => css`
+    border: 3px solid ${isFocused ? 'lightgreen' : 'black'};
+    
+    &:disabled {
+      cursor: not-allowed;
+      background: grey;
+    }
+  `,
+)
 const getCookie = (name: string): string | null => {
   const nameLenPlus = (name.length + 1);
   return document.cookie
@@ -27,8 +62,17 @@ const getCookie = (name: string): string | null => {
 
 const Home: NextPage = () => {
   const [position, setPosition] = useState<{ email: string | null; pageX: PositionValue; pageY: PositionValue }>({ email: null, pageX: null, pageY: null })
+  const [components, setComponent] = useState({ [INPUT_FIELD_ID]: null })
   const handleMouseMove = ({ pageX, pageY }: MouseEvent) => {
-    socket.emit('mouseover', { pageX, pageY, email: getCookie('user_email') })
+    socket.emit('mouseover', { type: MOUSE_MOVE, pageX, pageY, email: getCookie('user_email') })
+  }
+
+  const handleComponentFocused: FocusEventHandler<HTMLInputElement> = ({ currentTarget: { id } }) => {
+    socket.emit('mouseover', { type: COMPONENT_HIGHLIGHT, details: { id, isFocus: true, email: getCookie('user_email') }})
+  }
+
+  const handleComponentBlurred: FocusEventHandler<HTMLInputElement> = ({ currentTarget: { id } }) => {
+    socket.emit('mouseover', { type: COMPONENT_HIGHLIGHT, details: { id, isFocus: false, email: null }})
   }
 
   useEffect(() => {
@@ -37,8 +81,20 @@ const Home: NextPage = () => {
     })
 
     socket.on('newhighlight', (data) => {
-      console.log({ data })
-      setPosition(data)
+
+      switch (data.type) {
+        case MOUSE_MOVE:
+          setPosition(data)
+          break
+        case COMPONENT_HIGHLIGHT:
+          console.log({ data })
+          console.log('COMPONENT HIGHLIGHT')
+          setComponent({ ...components, [data?.details?.id]: data?.details?.email })
+          break
+        default:
+          return
+
+      }
     })
 
     window.addEventListener('mousemove', handleMouseMove)
@@ -59,7 +115,7 @@ const Home: NextPage = () => {
         </Head>
         <main className={styles.main}>
           <h1 className={styles.title}>
-            Welcome to <a href="https://nextjs.org">Next.js!</a>
+            Welcome 🏖
           </h1>
 
           <p className={styles.description}>
@@ -67,35 +123,19 @@ const Home: NextPage = () => {
             <code className={styles.code}>pages/index.js</code>
           </p>
 
-          <div className={styles.grid} id="test">
-            <a href="https://nextjs.org/docs" className={styles.card}>
-              <h2>Documentation &rarr;</h2>
-              <p>Find in-depth information about Next.js features and API.</p>
-            </a>
+          <FormGroup isFocused={!!components[INPUT_FIELD_ID]}>
+            <label htmlFor={INPUT_FIELD_ID}>Description</label>
+            <HighlightInput
+              id={INPUT_FIELD_ID}
+              disabled={!!components[INPUT_FIELD_ID]}
+              isFocused={!!components[INPUT_FIELD_ID]}
+              onBlur={handleComponentBlurred}
+              onFocus={handleComponentFocused}
+              type="text"
+            />
+          </FormGroup>
 
-            <a href="https://nextjs.org/learn" className={styles.card}>
-              <h2>Learn &rarr;</h2>
-              <p>Learn about Next.js in an interactive course with quizzes!</p>
-            </a>
 
-            <a
-              href="https://github.com/vercel/next.js/tree/master/examples"
-              className={styles.card}
-            >
-              <h2>Examples &rarr;</h2>
-              <p>Discover and deploy boilerplate example Next.js projects.</p>
-            </a>
-
-            <a
-              href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              className={styles.card}
-            >
-              <h2>Deploy &rarr;</h2>
-              <p>
-                Instantly deploy your Next.js site to a public URL with Vercel.
-              </p>
-            </a>
-          </div>
         </main>
 
         <footer className={styles.footer}>
