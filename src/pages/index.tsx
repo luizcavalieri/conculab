@@ -6,6 +6,7 @@ import Image from 'next/image'
 import styled, { css } from 'styled-components'
 import styles from '../styles/Home.module.css'
 import User from '../components/User/User'
+import env from '../config/environment.client'
 
 export type PositionValue = null | number
 
@@ -17,10 +18,6 @@ const COMPONENT_HIGHLIGHT = 'componentHighlight'
 const MOUSE_MOVE = 'mouseMove'
 const INPUT_FIELD_ID = 'inputField'
 const INPUT_FIELD_USER_NAME = 'userName'
-
-const socket = io('ws://localhost:3006', {
-  transports: ["websocket"],
-})
 
 const FormGroup = styled.div<InteractiveComponents>(
   ({ isFocused }) => css`
@@ -47,6 +44,12 @@ const FormGroup = styled.div<InteractiveComponents>(
   `}
   `,
 )
+
+const { API_WS_PORT, API_WS_URL } = env
+
+const socket = io(`${API_WS_URL}:${API_WS_PORT}`, {
+  transports: ['websocket'],
+})
 
 const HighlightInput = styled.input<InteractiveComponents>(
   ({ isFocused }) => css`
@@ -98,8 +101,6 @@ const Home: NextPage = () => {
           setPosition(data)
           break
         case COMPONENT_HIGHLIGHT:
-          console.log({ data })
-          console.log('COMPONENT HIGHLIGHT')
           setComponent({ ...components, [data?.details?.id]: data?.details?.email })
           break
         default:
