@@ -1,10 +1,12 @@
 import express from 'express'
-import * as http from 'http'
+import { Server, createServer } from 'http'
+import { Server as ServerSSL, createServer as createServerSSL } from 'https'
 import next from 'next'
 import bodyParser from 'body-parser'
 
+const dev = process.env.NODE_ENV !== 'production'
 const server = express()
-const httpServer: http.Server = http.createServer(server)
+const httpServer: Server | ServerSSL = dev ? createServer(server) : createServerSSL(server)
 const io = require('socket.io')(httpServer, {
   perMessageDeflate: {
     threshold: 32768
@@ -12,7 +14,6 @@ const io = require('socket.io')(httpServer, {
   transports: ['websocket']
 })
 
-const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
 const handle = app.getRequestHandler()
 
@@ -39,7 +40,6 @@ io.on('connection', (socket: any) => {
     console.log('client disconnected');
   })
 })
-
 
 app.prepare().then(() => {
 
