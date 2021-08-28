@@ -45,9 +45,9 @@ const FormGroup = styled.div<InteractiveComponents>(
   `,
 )
 
-const { API_WS_PORT, API_WS_URL } = env
+// const { API_WS_PORT, API_WS_URL } = env
 
-const socket = io(`${API_WS_URL}:${API_WS_PORT}`, {
+const socket = io({
   transports: ['websocket'],
 })
 
