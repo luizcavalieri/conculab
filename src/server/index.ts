@@ -1,21 +1,16 @@
 import express from 'express'
-import { Server, createServer } from 'http'
-import { Server as ServerSSL, createServer as createServerSSL } from 'https'
 import next from 'next'
 import bodyParser from 'body-parser'
 
 const dev = process.env.NODE_ENV !== 'production'
-const server = express()
-const httpServer: Server | ServerSSL = dev ? createServer(server) : createServerSSL(server)
-const io = require('socket.io')(httpServer, {
-  perMessageDeflate: {
-    threshold: 32768
-  },
-  transports: ['websocket']
-})
+const port = parseInt(process?.env?.API_WS_PORT || '3000', 10)
 
-const app = next({ dev })
-const handle = app.getRequestHandler()
+const app = express()
+const server = dev ? require('http').Server(app) : require('https').Server(app)
+const io = require('socket.io')(server)
+
+const nextApp = next({ dev })
+const handle = nextApp.getRequestHandler()
 
 io.on('connection', (socket: any) => {
   console.log('connection')
@@ -41,21 +36,18 @@ io.on('connection', (socket: any) => {
   })
 })
 
-app.prepare().then(() => {
+nextApp.prepare().then(() => {
+  app.use(bodyParser.json())
 
-  server.use(bodyParser.json())
-
-  server.post('/api/ping', (req, res) => {
+  app.post('/api/ping', (req, res) => {
     res.status(200).json({ ping: true })
   })
 
-  server.get('*', (req, res) => {
+  app.get('*', (req, res) => {
     return handle(req, res)
   })
 
-  httpServer.listen(process.env.API_WS_PORT)
-
-  server.listen(3000, () => {
-    console.log('> Read on http://localhost:3000')
+  server.listen(port, () => {
+    console.log(`> Read on http://localhost:${port}`)
   })
 })
