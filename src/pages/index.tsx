@@ -1,12 +1,10 @@
-import type { NextPage } from 'next'
-import { FocusEventHandler, useEffect, useState } from 'react'
-import { io } from "socket.io-client"
+import { useState } from 'react'
+import { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import styled, { css } from 'styled-components'
-import styles from '../styles/Home.module.css'
-import User from '../components/User/User'
-import env from '../config/environment.client'
+import User from 'components/User/User'
+import styles from 'styles/Home.module.css'
 
 export type PositionValue = null | number
 
@@ -14,10 +12,7 @@ interface InteractiveComponents {
   isFocused?: boolean
 }
 
-const COMPONENT_HIGHLIGHT = 'componentHighlight'
-const MOUSE_MOVE = 'mouseMove'
 const INPUT_FIELD_ID = 'inputField'
-const INPUT_FIELD_USER_NAME = 'userName'
 
 const FormGroup = styled.div<InteractiveComponents>(
   ({ isFocused }) => css`
@@ -45,12 +40,6 @@ const FormGroup = styled.div<InteractiveComponents>(
   `,
 )
 
-// const { API_WS_PORT, API_WS_URL } = env
-
-const socket = io({
-  transports: ['websocket'],
-})
-
 const HighlightInput = styled.input<InteractiveComponents>(
   ({ isFocused }) => css`
     border: 3px solid ${isFocused ? 'lightgreen' : 'black'};
@@ -61,60 +50,10 @@ const HighlightInput = styled.input<InteractiveComponents>(
     }
   `,
 )
-const getCookie = (name: string): string | null => {
-  const nameLenPlus = (name.length + 1);
-  return document.cookie
-    .split(';')
-    .map(c => c.trim())
-    .filter(cookie => {
-      return cookie.substring(0, nameLenPlus) === `${name}=`;
-    })
-    .map(cookie => {
-      return decodeURIComponent(cookie.substring(nameLenPlus));
-    })[0] || null;
-}
 
 const Home: NextPage = () => {
   const [position, setPosition] = useState<{ email: string | null; pageX: PositionValue; pageY: PositionValue }>({ email: null, pageX: null, pageY: null })
   const [components, setComponent] = useState({ [INPUT_FIELD_ID]: null })
-  const handleMouseMove = ({ pageX, pageY }: MouseEvent) => {
-    socket.emit('mouseover', { type: MOUSE_MOVE, pageX, pageY, email: getCookie('user_email') })
-  }
-
-  const handleComponentFocused: FocusEventHandler<HTMLInputElement> = ({ currentTarget: { id } }) => {
-    socket.emit('mouseover', { type: COMPONENT_HIGHLIGHT, details: { id, isFocus: true, email: getCookie('user_email') }})
-  }
-
-  const handleComponentBlurred: FocusEventHandler<HTMLInputElement> = ({ currentTarget: { id } }) => {
-    socket.emit('mouseover', { type: COMPONENT_HIGHLIGHT, details: { id, isFocus: false, email: null }})
-  }
-
-  useEffect(() => {
-    socket.on('connect', () => {
-      console.log(socket.id);
-    })
-
-    socket.on('newhighlight', (data) => {
-
-      switch (data.type) {
-        case MOUSE_MOVE:
-          setPosition(data)
-          break
-        case COMPONENT_HIGHLIGHT:
-          setComponent({ ...components, [data?.details?.id]: data?.details?.email })
-          break
-        default:
-          return
-
-      }
-    })
-
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => {
-      console.log('Remove event listener')
-      window.removeEventListener('mousemove', handleMouseMove, false)
-    }
-  }, [])
 
   return (
     <>
