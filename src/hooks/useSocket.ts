@@ -1,3 +1,4 @@
+import { requestIdleCallback } from 'next/dist/client/request-idle-callback'
 import { useEffect } from 'react'
 import io, { ManagerOptions, Socket, SocketOptions } from 'socket.io-client'
 import { DefaultEventsMap } from 'socket.io-client/build/typed-events'

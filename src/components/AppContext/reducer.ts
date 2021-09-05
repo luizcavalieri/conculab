@@ -1,20 +1,7 @@
-import {
-  ADD_NEW_TRACKER, COMPONENT_HIGHLIGHT, MOUSE_TRACK, UPDATE_COMPONENT_HIGHLIGHT, UPDATE_TRACKER,
-} from './constants'
+import { AppState } from 'components/AppContext/types'
+import { ADD_NEW_TRACKER, UPDATE_COMPONENT_HIGHLIGHT, UPDATE_TRACKER, defaultState, MOUSE_TRACK } from './constants'
 
-interface AppState {
-  [COMPONENT_HIGHLIGHT]?: {
-    [key: string]: string[]
-  },
-  [MOUSE_TRACK]?: {
-    [key: string]: {
-      y: number
-      x: number
-    }
-  }
-}
-
-export const reducer = (state: AppState = {}, action: { type: string; payload?: any }): AppState => {
+export const reducer = (state = defaultState, action: { type: string; payload?: any }): AppState => {
   const { payload, type } = action
   switch (type) {
     case ADD_NEW_TRACKER: {
@@ -22,7 +9,13 @@ export const reducer = (state: AppState = {}, action: { type: string; payload?: 
     }
 
     case UPDATE_TRACKER: {
-      return state
+      return {
+        ...state,
+        [MOUSE_TRACK]: {
+          ...state[MOUSE_TRACK],
+          [payload.email]: { x: payload.pageX, y: payload.pageY, }
+        }
+      }
     }
 
     case UPDATE_COMPONENT_HIGHLIGHT: {

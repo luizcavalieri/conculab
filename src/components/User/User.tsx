@@ -1,6 +1,12 @@
 import React, { FunctionComponent } from 'react'
 import { PositionValue } from '../../pages'
 
+interface UserProp {
+  pageX: PositionValue,
+  pageY: PositionValue,
+  email: string | null
+}
+
 const getProps = ({ pageY, pageX }: { pageX: PositionValue, pageY: PositionValue }) => ({
   style: {
     transform:
@@ -8,7 +14,7 @@ const getProps = ({ pageY, pageX }: { pageX: PositionValue, pageY: PositionValue
   }
 })
 
-const User: FunctionComponent<{ pageX: PositionValue, pageY: PositionValue, email: string | null }> = ({ email, pageX, pageY  }) => {
+const User: FunctionComponent<UserProp> = ({ email, pageX, pageY  }) => {
   return <div {...getProps({ pageX, pageY })}>{email}</div>
 }
 

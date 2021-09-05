@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { COMPONENT_HIGHLIGHT, MOUSE_TRACK } from 'components/AppContext/constants'
+import styled, { css } from 'styled-components'
+import { useContext } from 'react'
 import { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
-import styled, { css } from 'styled-components'
-import User from 'components/User/User'
+import Users from 'components/Users/Users'
+import AppContext from 'components/AppContext/AppContext'
 import styles from 'styles/Home.module.css'
 
 export type PositionValue = null | number
@@ -52,12 +54,13 @@ const HighlightInput = styled.input<InteractiveComponents>(
 )
 
 const Home: NextPage = () => {
-  const [position, setPosition] = useState<{ email: string | null; pageX: PositionValue; pageY: PositionValue }>({ email: null, pageX: null, pageY: null })
-  const [components, setComponent] = useState({ [INPUT_FIELD_ID]: null })
+  const { helpers, state } = useContext(AppContext)
+  const { [MOUSE_TRACK]: position = {}, [COMPONENT_HIGHLIGHT]: components = {} } = state
+  const { handleComponentBlurred, handleComponentFocused } = helpers || {}
 
   return (
     <>
-      <User {...position} />
+      <Users />
       <div className={styles.container}>
         <Head>
           <title>Create Next App</title>

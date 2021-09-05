@@ -1,6 +1,7 @@
+import { AppState } from 'components/AppContext/types'
 import React, { FocusEventHandler, FunctionComponent, useEffect, useReducer } from 'react'
 import {
-  COMPONENT_HIGHLIGHT,
+  COMPONENT_HIGHLIGHT, defaultState,
   MOUSE_TRACK,
   UPDATE_COMPONENT_HIGHLIGHT,
   UPDATE_TRACKER,
@@ -14,7 +15,7 @@ import { getCookie } from './utils'
 const { API_WS_PORT, API_WS_URL } = env
 
 const AppContextProvider: FunctionComponent = ({ children }) => {
-  const [state, dispatch] = useReducer(reducer, {})
+  const [state, dispatch] = useReducer(reducer, defaultState)
   const socket = useSocket({
       messages: [
         {
@@ -35,7 +36,7 @@ const AppContextProvider: FunctionComponent = ({ children }) => {
               case COMPONENT_HIGHLIGHT:
                 dispatch({
                   type: UPDATE_COMPONENT_HIGHLIGHT,
-                  payload: { ...state[COMPONENT_HIGHLIGHT], [data?.details?.id]: data?.details?.email }
+                  payload: { component: data?.details?.id, user: data?.details?.email }
                 })
                 break
               default:
@@ -68,13 +69,13 @@ const AppContextProvider: FunctionComponent = ({ children }) => {
   useEffect(() => {
     window.addEventListener('mousemove', handleMouseMove)
     return () => {
-      console.log('Remove event listener')
+      console.log('Remove event listener.')
       window.removeEventListener('mousemove', handleMouseMove, false)
     }
   }, [])
 
   return (
-    <AppContext.Provider value={{ dispatch, state }}>
+    <AppContext.Provider value={{ dispatch, helpers: { handleComponentBlurred, handleComponentFocused }, state }}>
       {children}
     </AppContext.Provider>
   )
